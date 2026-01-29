@@ -1,0 +1,141 @@
+---
+title: "code"
+format: html
+editor: visual
+---
+
+# Travail préparatoire 
+
+## Import des librairies
+```{r}
+library(quantmod)
+library(PerformanceAnalytics)
+library(robustbase)
+library(fBasics)
+library(DescTools)
+library(FinTS)
+```
+
+## Import des données
+
+```{r}
+getSymbols(Symbols = "UBI.PA", src = "yahoo", from = as.Date("2021-01-01"), to = as.Date("2026-01-01"))
+
+class(UBI.PA)
+head(UBI.PA)
+dim(UBI.PA)
+price <- UBI.PA[,4]
+
+options(repr.plot.res = 300, repr.plot.height = 4.4) 
+plot.xts(UBI.PA[,1:4],legend.loc = "left", main = "Prix de l'action UBI.PA", col = rainbow(4))
+```
+
+
+# Partie commune
+
+## 1. Description de l'actif
+
+Dans le dossier
+
+## 2. Outliers
+
+```{r}
+return <- dailyReturn(UBI.PA)
+
+creturn <- Return.clean(return, method = "boudt")
+
+write(t(creturn),file="clean-returns.out",ncolumn=1,append=FALSE)
+
+data <- cbind(creturn,return)
+options(repr.plot.res = 300, repr.plot.height = 4.4) 
+plot.xts(data,legend.loc = "top", main = "Clean and raw UBI.PA returns", col = rainbow(4))
+
+
+par(mfrow=c(1,2))
+chart.Histogram(return, xlab = "Returns", ylab = "Frequency", methods = c( "add.density", "add.normal") )
+chart.Histogram(creturn, xlab = "Clean returns", ylab = "Frequency", methods = c( "add.density", "add.normal") )
+```
+
+## 3. Graphiques cours / rentabilités / rentabilités^2
+
+```{r}
+# Graphique du cours du cloture et des rentabilités du UBI.PA
+par(mfrow=c(2,1))
+plot.xts(UBI.PA[,4],legend.loc = "topleft", main = "Cours de l'indice UBI.PA", col = rainbow(4))
+plot.xts(creturn,legend.loc = "topleft", main = "Rentabilités du UBI.PA", col = "blue")
+```
+
+```{r}
+# Calcul des rentabilités au carré du UBI.PA
+creturn2 <- creturn^2
+# Graphique des rentabilités et des rentabilités au carré du UBI.PA
+par(mfrow=c(2,1))
+plot.xts(creturn,legend.loc = "top", main = "Rentabilités du UBI.PA", col = rainbow(4))
+plot.xts(creturn2,legend.loc = "top", main = "Rentabilités au carré du UBI.PA", col = "blue")
+```
+
+## 4. Graphiques corrélogrammes 
+
+```{r}
+# Corrélogrammes des rentabilités
+par(mfrow=c(2,2))
+acf(creturn, main="Return ACF")
+pacf(creturn, main="Return PACF")
+acf(creturn2, main="Squared return ACF")
+pacf(creturn2, main="Squared return PACF")
+
+# Histogramme des rentabilités
+par(mfrow=c(1,1))
+chart.Histogram(creturn, xlab = "Returns", ylab = "Frequency", methods = c( "add.density", "add.normal") )
+
+# show.outliers: logical; if TRUE (the default), the histogram will show all of the data points. 
+# If FALSE, it will show only the ﬁrst through the fourth quartile and will exclude outliers.
+chart.Histogram(creturn, xlab = "Returns", ylab = "Frequency", methods = c( "add.density", "add.normal"), show.outliers = FALSE)
+```
+
+## 5. Statistiques descriptives
+
+```{r}
+# descriptive stat on returns with PerformanceAnalytics package (warning: give Ex.Kurtosis)
+table.Stats(creturn*100)
+table.Distributions(creturn)
+
+table.Autocorrelation(creturn)
+
+# descriptive stat on returns with fBasics package (warning: give Ex.Kurtosis)
+# mesures de la moyenne, écart-type, skewness, kurtosis ...
+stat1 = basicStats(creturn)
+show(stat1)
+# descriptive stat on returns in %
+stat = basicStats(creturn*100)
+show(stat)
+
+# Jarque-Bera normality test with DescTools package
+JarqueBeraTest(creturn, robust = FALSE, method = "chisq")
+
+# autocorrelation Box-Pierce and Ljung-Box tests with 10 lags
+Box.test(creturn, lag = 10, type = c("Box-Pierce", "Ljung-Box"), fitdf = 0)
+
+# ARCH test with 5 and 10 lags
+ArchTest(creturn,lag=5)
+ArchTest(creturn,lag=10)
+```
+
+```{r}
+# Semideviation with PerformanceAnalytics package (Semi-écart-type)
+# Calcul de la semivariance
+sdev = SemiDeviation(creturn)
+show(sdev)
+sdev = SemiDeviation(creturn*100)
+show(sdev)
+```
+
+## 6. Caractéristiques de distribution
+
+## 7. Estimation des modèles de volatilité
+
+# Prévision de la VaR
+
+## Calcul de la VaR 
+
+## Mesures de VaR / ES
