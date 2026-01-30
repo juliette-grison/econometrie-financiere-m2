@@ -16,6 +16,7 @@ library(fBasics)
 library(DescTools)
 library(FinTS)
 library(rugarch)
+library(GAS)
 ```
 
 ## Import des données
@@ -207,7 +208,9 @@ if (abs(nu2) < VC) {
 ## 7. Estimation des modèles de volatilité
 
 ### Riskmetrics
+
 #### Normale
+
 ```{r}
 y = creturn
 spec = ugarchspec(variance.model=list(model = "iGARCH"), mean.model=list(armaOrder=c(0,0), include.mean=TRUE), fixed.pars=list(omega=0,alpha1=0.06,beta1=0.94), distribution.model = "norm")
@@ -224,6 +227,7 @@ plot.xts(return_var,legend.loc = "top", main = "Variance conditionnelle du modè
 ```
 
 #### Student
+
 ```{r}
 spec = ugarchspec(variance.model=list(model = "iGARCH"), mean.model=list(armaOrder=c(0,0), include.mean=TRUE), fixed.pars=list(omega=0,alpha1=0.06,beta1=0.94), distribution.model = "std")
 mod = ugarchfit(data = y, spec = spec)
@@ -239,7 +243,9 @@ plot.xts(return_var,legend.loc = "top", main = "Variance conditionnelle du modè
 ```
 
 ### GARCH
+
 #### Normale
+
 ```{r}
 spec = ugarchspec(variance.model=list(model = "sGARCH"), mean.model=list(armaOrder=c(0,0), include.mean=TRUE), distribution.model = "norm")
 mod = ugarchfit(data = y, spec = spec)
@@ -265,6 +271,7 @@ plot.xts(return_var,legend.loc = "top", main = "Variance conditionnelle du modè
 ```
 
 #### Student
+
 ```{r}
 spec = ugarchspec(variance.model=list(model = "sGARCH"), mean.model=list(armaOrder=c(0,0), include.mean=TRUE), distribution.model = "std")
 mod = ugarchfit(data = y, spec = spec)
@@ -290,7 +297,9 @@ plot.xts(return_var,legend.loc = "top", main = "Variance conditionnelle du modè
 ```
 
 ### IGARCH
+
 #### Normale
+
 ```{r}
 spec = ugarchspec(variance.model=list(model = "iGARCH"), mean.model=list(armaOrder=c(0,0), include.mean=TRUE), distribution.model = "norm")
 mod = ugarchfit(data = y, spec = spec)
@@ -306,6 +315,7 @@ plot.xts(return_var,legend.loc = "top", main = "Variance conditionnelle du modè
 ```
 
 #### Student
+
 ```{r}
 spec = ugarchspec(variance.model=list(model = "iGARCH"), mean.model=list(armaOrder=c(0,0), include.mean=TRUE), distribution.model = "std")
 mod = ugarchfit(data = y, spec = spec)
@@ -321,11 +331,21 @@ plot.xts(return_var,legend.loc = "top", main = "Variance conditionnelle du modè
 ```
 
 ### GJR
+
 #### Normale
+
 ```{r}
 spec = ugarchspec(variance.model=list(model = "gjrGARCH"), mean.model=list(armaOrder=c(0,0), include.mean=TRUE), distribution.model = "norm")
 mod = ugarchfit(data = y, spec = spec)
 mod
+
+# Compute persistence
+pers = persistence(mod)
+show(pers)
+
+# Compute half-life
+hl = halflife(mod)
+show(hl)
 
 # Conditionnal variance
 return_var <- xts(mod@fit$var, order.by = as.Date(index(creturn)))
@@ -337,10 +357,19 @@ plot.xts(return_var,legend.loc = "top", main = "Variance conditionnelle du modè
 ```
 
 #### Student
+
 ```{r}
 spec = ugarchspec(variance.model=list(model = "gjrGARCH"), mean.model=list(armaOrder=c(0,0), include.mean=TRUE), distribution.model = "std")
 mod = ugarchfit(data = y, spec = spec)
 mod
+
+# Compute persistence
+pers = persistence(mod)
+show(pers)
+
+# Compute half-life
+hl = halflife(mod)
+show(hl)
 
 # Conditionnal variance
 return_var <- xts(mod@fit$var, order.by = as.Date(index(creturn)))
@@ -352,8 +381,67 @@ plot.xts(return_var,legend.loc = "top", main = "Variance conditionnelle du modè
 ```
 
 
-# Prévision de la VaR
+# Prévision de la VaR (2023)
 
 ## Calcul de la VaR
+
+```{r}
+show(creturn[450,])	# 2019-12-31	0.002946022
+b <- nrow(return)	# b=1258
+estim <- 1006		# nbre observations des rentabilités de 2016 à 2019
+h <- b-1007+1		# nbre observations des rentabilités en 2020
+original <- return[1007:1258, 1]		# rentabilités originales en 2020
+```
+
+```{r}
+# Matrix initialization
+foremat <- matrix(nrow=h, ncol=1) # matrice contenant les prévisions de la variance
+varmat <- matrix(nrow=h, ncol=1) # matrice contenant les prévisions de la VaR
+esmat <- matrix(nrow=h, ncol=1)
+
+# Estimating GARCH(1,1) with only an intercept in the mean
+spec = ugarchspec(variance.model=list(model = "sGARCH"),mean.model=list(armaOrder=c(0,0), include.mean=TRUE))
+
+for(i in 1:h)
+{
+  yy <- y[1:(estim-1+i),1]
+  fit = ugarchfit(data = yy, spec = spec)
+  forc =  ugarchforecast(fit, n.ahead=1)
+  foremat[i,1] <- sigma(forc)^2
+  varmat[i,1] <- qnorm(0.05)*sigma(forc)
+  esmat[i,1] <- -dnorm(qnorm(0.05))/0.05*sigma(forc)
+}
+
+error <- original^2 - foremat
+mse <- mean(error^2)
+mse*100			# MSE(%)
+mean(varmat)	# VaR moyenne
+mean(esmat)		# Expected shortfall
+
+# VaR figure
+data <- cbind(original,varmat)
+options(repr.plot.res = 300, repr.plot.height = 4.4) 
+plot.xts(data,legend.loc = "topleft", main = "Returns and VaR", col = rainbow(4))
+
+# Kupiec and Engle-Manganelli VaR tests
+print(VaRTest(0.05, as.numeric(original), as.numeric(varmat)))
+
+#  McNeil-Frey ES test
+print(ESTest(0.05, as.numeric(original), as.numeric(esmat), as.numeric(varmat), boot = TRUE))
+
+# Writing the results to output file, change the output file name
+write(t(foremat),file="forecast_igarch.out",ncolumn=1,append=FALSE)
+write(t(varmat),file="var_igarch.out",ncolumn=1,append=FALSE)			
+```
+
+```{r}
+# Kupiec backtesting test with GAS package
+alpha = 0.05
+var = ts(varmat)
+backtest <- BacktestVaR(data = original, VaR = var, alpha = alpha)
+kupiec <- backtest$LRuc		# Kupiec test
+show(kupiec)
+```
+
 
 ## Mesures de VaR / ES
