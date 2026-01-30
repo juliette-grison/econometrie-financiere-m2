@@ -134,6 +134,78 @@ show(sdev)
 
 ## 6. Caractéristiques de distribution
 
+### Asymétrie (Skewness)
+
+```{r}
+# Calcul du skewness empirique
+mu3 <- mean( (creturn - mean(creturn))^3 )
+sigma <- sqrt(mu2)
+
+Skew <- mu3 / sigma^3
+```
+
+```{r}
+# Statistique du test (v1)
+nu1 <- Skew / sqrt(6 / length(creturn))
+```
+
+```{r}
+# Décision statistique
+abs(nu1) > VC
+```
+
+```{r}
+# Interprétation
+if (abs(nu1) < VC) {
+  cat("H0 acceptée : distribution symétrique\n")
+} else {
+  cat("H0 rejetée : distribution asymétrique\n")
+  if (nu1 > 0) {
+    cat("→ Asymétrie positive : gains extrêmes dominants\n")
+  } else {
+    cat("→ Asymétrie négative : pertes extrêmes dominantes\n")
+  }
+}
+```
+
+### Leptokurticité (Kurtosis)
+
+```{r}
+# Calcul de la kurtosis empirique
+mu2 <- mean( (creturn - mean(creturn))^2 )
+mu4 <- mean( (creturn - mean(creturn))^4 )
+
+Kur <- mu4 / (mu2^2)
+ExcessKur <- Kur - 3
+```
+
+```{r}
+# Statistique du test (v2)
+nu2 <- ExcessKur / sqrt(24 / length(creturn))
+```
+
+```{r}
+# Décision statistique
+alpha <- 0.05
+VC <- qnorm(1 - alpha/2)
+
+abs(nu2) > VC
+```
+
+```{r}
+# Interprétation
+if (abs(nu2) < VC) {
+  cat("H0 acceptée : distribution mésokurtique (normale)\n")
+} else {
+  cat("H0 rejetée : distribution non normale\n")
+  if (nu2 > 0) {
+    cat("→ Leptokurtique : queues épaisses (fat tails)\n")
+  } else {
+    cat("→ Platikurtique : queues fines\n")
+  }
+}
+```
+
 ## 7. Estimation des modèles de volatilité
 
 ### Riskmetrics
