@@ -15,6 +15,7 @@ library(robustbase)
 library(fBasics)
 library(DescTools)
 library(FinTS)
+library(rugarch)
 ```
 
 ## Import des données
@@ -205,6 +206,152 @@ if (abs(nu2) < VC) {
 ```
 
 ## 7. Estimation des modèles de volatilité
+
+### Riskmetrics
+#### Normale
+```{r}
+y = creturn
+spec = ugarchspec(variance.model=list(model = "iGARCH"), mean.model=list(armaOrder=c(0,0), include.mean=TRUE), fixed.pars=list(omega=0,alpha1=0.06,beta1=0.94), distribution.model = "norm")
+mod = ugarchfit(data = y, spec = spec)
+mod
+
+# Conditionnal variance
+return_var <- xts(mod@fit$var, order.by = as.Date(index(creturn)))
+
+# Graphique des rentabilités au carré et de la variance conditionnelle estimée
+par(mfrow=c(2,1))
+plot.xts(creturn2,legend.loc = "top", main = "Rentabilités au carré du UBI.PA", col = rainbow(4))
+plot.xts(return_var,legend.loc = "top", main = "Variance conditionnelle du modèle Riskmetrics", col = "blue")
+```
+
+#### Student
+```{r}
+spec = ugarchspec(variance.model=list(model = "iGARCH"), mean.model=list(armaOrder=c(0,0), include.mean=TRUE), fixed.pars=list(omega=0,alpha1=0.06,beta1=0.94), distribution.model = "std")
+mod = ugarchfit(data = y, spec = spec)
+mod
+
+# Conditionnal variance
+return_var <- xts(mod@fit$var, order.by = as.Date(index(creturn)))
+
+# Graphique des rentabilités au carré et de la variance conditionnelle estimée
+par(mfrow=c(2,1))
+plot.xts(creturn2,legend.loc = "top", main = "Rentabilités au carré du UBI.PA", col = rainbow(4))
+plot.xts(return_var,legend.loc = "top", main = "Variance conditionnelle du modèle Riskmetrics", col = "blue")
+```
+
+### GARCH
+#### Normale
+```{r}
+spec = ugarchspec(variance.model=list(model = "sGARCH"), mean.model=list(armaOrder=c(0,0), include.mean=TRUE), distribution.model = "norm")
+mod = ugarchfit(data = y, spec = spec)
+mod
+
+# Compute persistence
+pers = persistence(mod)
+show(pers)
+
+# Compute half-life
+hl = halflife(mod)
+show(hl)
+
+# Conditionnal variance
+return_var <- xts(mod@fit$var, order.by = as.Date(index(creturn)))
+par(mfrow=c(1,1))
+plot(return_var, main = "Variance conditionnelle du modèle GARCH", col = "blue")
+
+# Graphique des rentabilités au carré et de la variance conditionnelle estimée
+par(mfrow=c(2,1))
+plot.xts(creturn2,legend.loc = "top", main = "Rentabilités au carré du UBI.PA", col = rainbow(4))
+plot.xts(return_var,legend.loc = "top", main = "Variance conditionnelle du modèle GARCH", col = "blue")
+```
+
+#### Student
+```{r}
+spec = ugarchspec(variance.model=list(model = "sGARCH"), mean.model=list(armaOrder=c(0,0), include.mean=TRUE), distribution.model = "std")
+mod = ugarchfit(data = y, spec = spec)
+mod
+
+# Compute persistence
+pers = persistence(mod)
+show(pers)
+
+# Compute half-life
+hl = halflife(mod)
+show(hl)
+
+# Conditionnal variance
+return_var <- xts(mod@fit$var, order.by = as.Date(index(creturn)))
+par(mfrow=c(1,1))
+plot(return_var, main = "Variance conditionnelle du modèle GARCH", col = "blue")
+
+# Graphique des rentabilités au carré et de la variance conditionnelle estimée
+par(mfrow=c(2,1))
+plot.xts(creturn2,legend.loc = "top", main = "Rentabilités au carré du UBI.PA", col = rainbow(4))
+plot.xts(return_var,legend.loc = "top", main = "Variance conditionnelle du modèle GARCH", col = "blue")
+```
+
+### IGARCH
+#### Normale
+```{r}
+spec = ugarchspec(variance.model=list(model = "iGARCH"), mean.model=list(armaOrder=c(0,0), include.mean=TRUE), distribution.model = "norm")
+mod = ugarchfit(data = y, spec = spec)
+mod
+
+# Conditionnal variance
+return_var <- xts(mod@fit$var, order.by = as.Date(index(creturn)))
+
+# Graphique des rentabilités au carré et de la variance conditionnelle estimée
+par(mfrow=c(2,1))
+plot.xts(creturn2,legend.loc = "top", main = "Rentabilités au carré du UBI.PA", col = rainbow(4))
+plot.xts(return_var,legend.loc = "top", main = "Variance conditionnelle du modèle IGARCH", col = "blue")
+```
+
+#### Student
+```{r}
+spec = ugarchspec(variance.model=list(model = "iGARCH"), mean.model=list(armaOrder=c(0,0), include.mean=TRUE), distribution.model = "std")
+mod = ugarchfit(data = y, spec = spec)
+mod
+
+# Conditionnal variance
+return_var <- xts(mod@fit$var, order.by = as.Date(index(creturn)))
+
+# Graphique des rentabilités au carré et de la variance conditionnelle estimée
+par(mfrow=c(2,1))
+plot.xts(creturn2,legend.loc = "top", main = "Rentabilités au carré du UBI.PA", col = rainbow(4))
+plot.xts(return_var,legend.loc = "top", main = "Variance conditionnelle du modèle IGARCH", col = "blue")
+```
+
+### GJR
+#### Normale
+```{r}
+spec = ugarchspec(variance.model=list(model = "gjrGARCH"), mean.model=list(armaOrder=c(0,0), include.mean=TRUE), distribution.model = "norm")
+mod = ugarchfit(data = y, spec = spec)
+mod
+
+# Conditionnal variance
+return_var <- xts(mod@fit$var, order.by = as.Date(index(creturn)))
+
+# Graphique des rentabilités au carré et de la variance conditionnelle estimée
+par(mfrow=c(2,1))
+plot.xts(creturn2,legend.loc = "top", main = "Rentabilités au carré du UBI.PA", col = rainbow(4))
+plot.xts(return_var,legend.loc = "top", main = "Variance conditionnelle du modèle GJR(1,1)", col = "blue")
+```
+
+#### Student
+```{r}
+spec = ugarchspec(variance.model=list(model = "gjrGARCH"), mean.model=list(armaOrder=c(0,0), include.mean=TRUE), distribution.model = "std")
+mod = ugarchfit(data = y, spec = spec)
+mod
+
+# Conditionnal variance
+return_var <- xts(mod@fit$var, order.by = as.Date(index(creturn)))
+
+# Graphique des rentabilités au carré et de la variance conditionnelle estimée
+par(mfrow=c(2,1))
+plot.xts(creturn2,legend.loc = "top", main = "Rentabilités au carré du UBI.PA", col = rainbow(4))
+plot.xts(return_var,legend.loc = "top", main = "Variance conditionnelle du modèle GJR(1,1)", col = "blue")
+```
+
 
 # Prévision de la VaR
 
