@@ -207,23 +207,30 @@ if (abs(nu2) < VC) {
 
 ## 7. Estimation des modèles de volatilité
 
+### Sélection des années jusqu'à 2024 inclus
+
+```{r}
+creturn_  <- creturn["2021-01-01/2024-12-31"]
+creturn2_ <- creturn2["2021-01-01/2024-12-31"]
+```
+
 ### Riskmetrics
 
 #### Normale
 
 ```{r}
-y = creturn
+y = creturn_
 spec = ugarchspec(variance.model=list(model = "iGARCH"), mean.model=list(armaOrder=c(0,0), include.mean=TRUE), fixed.pars=list(omega=0,alpha1=0.06,beta1=0.94), distribution.model = "norm")
 mod = ugarchfit(data = y, spec = spec)
 mod
 
 # Conditionnal variance
-return_var <- xts(mod@fit$var, order.by = as.Date(index(creturn)))
+return_var <- xts(mod@fit$var, order.by = as.Date(index(creturn_)))
 
 # Graphique des rentabilités au carré et de la variance conditionnelle estimée
 par(mfrow=c(2,1))
-plot.xts(creturn2,legend.loc = "top", main = "Rentabilités au carré du UBI.PA", col = rainbow(4))
-plot.xts(return_var,legend.loc = "top", main = "Variance conditionnelle du modèle Riskmetrics", col = "blue")
+plot.xts(creturn2_,legend.loc = "top", main = "Rentabilités au carré du UBI.PA", col = rainbow(4))
+plot.xts(return_var,legend.loc = NULL, main = "Variance conditionnelle du modèle Riskmetrics", col = "blue")
 ```
 
 #### Student
@@ -234,12 +241,12 @@ mod = ugarchfit(data = y, spec = spec)
 mod
 
 # Conditionnal variance
-return_var <- xts(mod@fit$var, order.by = as.Date(index(creturn)))
+return_var <- xts(mod@fit$var, order.by = as.Date(index(creturn_)))
 
 # Graphique des rentabilités au carré et de la variance conditionnelle estimée
 par(mfrow=c(2,1))
-plot.xts(creturn2,legend.loc = "top", main = "Rentabilités au carré du UBI.PA", col = rainbow(4))
-plot.xts(return_var,legend.loc = "top", main = "Variance conditionnelle du modèle Riskmetrics", col = "blue")
+plot.xts(creturn2_,legend.loc = "top", main = "Rentabilités au carré du UBI.PA", col = rainbow(4))
+plot.xts(return_var,legend.loc = NULL, main = "Variance conditionnelle du modèle Riskmetrics", col = "blue")
 ```
 
 ### GARCH
@@ -260,14 +267,14 @@ hl = halflife(mod)
 show(hl)
 
 # Conditionnal variance
-return_var <- xts(mod@fit$var, order.by = as.Date(index(creturn)))
+return_var <- xts(mod@fit$var, order.by = as.Date(index(creturn_)))
 par(mfrow=c(1,1))
 plot(return_var, main = "Variance conditionnelle du modèle GARCH", col = "blue")
 
 # Graphique des rentabilités au carré et de la variance conditionnelle estimée
 par(mfrow=c(2,1))
-plot.xts(creturn2,legend.loc = "top", main = "Rentabilités au carré du UBI.PA", col = rainbow(4))
-plot.xts(return_var,legend.loc = "top", main = "Variance conditionnelle du modèle GARCH", col = "blue")
+plot.xts(creturn2_,legend.loc = "top", main = "Rentabilités au carré du UBI.PA", col = rainbow(4))
+plot.xts(return_var,legend.loc = NULL, main = "Variance conditionnelle du modèle GARCH", col = "blue")
 ```
 
 #### Student
@@ -286,14 +293,14 @@ hl = halflife(mod)
 show(hl)
 
 # Conditionnal variance
-return_var <- xts(mod@fit$var, order.by = as.Date(index(creturn)))
+return_var <- xts(mod@fit$var, order.by = as.Date(index(creturn_)))
 par(mfrow=c(1,1))
 plot(return_var, main = "Variance conditionnelle du modèle GARCH", col = "blue")
 
 # Graphique des rentabilités au carré et de la variance conditionnelle estimée
 par(mfrow=c(2,1))
-plot.xts(creturn2,legend.loc = "top", main = "Rentabilités au carré du UBI.PA", col = rainbow(4))
-plot.xts(return_var,legend.loc = "top", main = "Variance conditionnelle du modèle GARCH", col = "blue")
+plot.xts(creturn2_,legend.loc = "top", main = "Rentabilités au carré du UBI.PA", col = rainbow(4))
+plot.xts(return_var,legend.loc = NULL, main = "Variance conditionnelle du modèle GARCH", col = "blue")
 ```
 
 ### IGARCH
@@ -306,12 +313,12 @@ mod = ugarchfit(data = y, spec = spec)
 mod
 
 # Conditionnal variance
-return_var <- xts(mod@fit$var, order.by = as.Date(index(creturn)))
+return_var <- xts(mod@fit$var, order.by = as.Date(index(creturn_)))
 
 # Graphique des rentabilités au carré et de la variance conditionnelle estimée
 par(mfrow=c(2,1))
-plot.xts(creturn2,legend.loc = "top", main = "Rentabilités au carré du UBI.PA", col = rainbow(4))
-plot.xts(return_var,legend.loc = "top", main = "Variance conditionnelle du modèle IGARCH", col = "blue")
+plot.xts(creturn2_,legend.loc = "top", main = "Rentabilités au carré du UBI.PA", col = rainbow(4))
+plot.xts(return_var,legend.loc = NULL, main = "Variance conditionnelle du modèle IGARCH", col = "blue")
 ```
 
 #### Student
@@ -322,12 +329,12 @@ mod = ugarchfit(data = y, spec = spec)
 mod
 
 # Conditionnal variance
-return_var <- xts(mod@fit$var, order.by = as.Date(index(creturn)))
+return_var <- xts(mod@fit$var, order.by = as.Date(index(creturn_)))
 
 # Graphique des rentabilités au carré et de la variance conditionnelle estimée
 par(mfrow=c(2,1))
-plot.xts(creturn2,legend.loc = "top", main = "Rentabilités au carré du UBI.PA", col = rainbow(4))
-plot.xts(return_var,legend.loc = "top", main = "Variance conditionnelle du modèle IGARCH", col = "blue")
+plot.xts(creturn2_,legend.loc = "top", main = "Rentabilités au carré du UBI.PA", col = rainbow(4))
+plot.xts(return_var,legend.loc = NULL, main = "Variance conditionnelle du modèle IGARCH", col = "blue")
 ```
 
 ### GJR
@@ -348,12 +355,12 @@ hl = halflife(mod)
 show(hl)
 
 # Conditionnal variance
-return_var <- xts(mod@fit$var, order.by = as.Date(index(creturn)))
+return_var <- xts(mod@fit$var, order.by = as.Date(index(creturn_)))
 
 # Graphique des rentabilités au carré et de la variance conditionnelle estimée
 par(mfrow=c(2,1))
-plot.xts(creturn2,legend.loc = "top", main = "Rentabilités au carré du UBI.PA", col = rainbow(4))
-plot.xts(return_var,legend.loc = "top", main = "Variance conditionnelle du modèle GJR(1,1)", col = "blue")
+plot.xts(creturn2_,legend.loc = "top", main = "Rentabilités au carré du UBI.PA", col = rainbow(4))
+plot.xts(return_var,legend.loc = NULL, main = "Variance conditionnelle du modèle GJR(1,1)", col = "blue")
 ```
 
 #### Student
@@ -372,25 +379,26 @@ hl = halflife(mod)
 show(hl)
 
 # Conditionnal variance
-return_var <- xts(mod@fit$var, order.by = as.Date(index(creturn)))
+return_var <- xts(mod@fit$var, order.by = as.Date(index(creturn_)))
 
 # Graphique des rentabilités au carré et de la variance conditionnelle estimée
 par(mfrow=c(2,1))
-plot.xts(creturn2,legend.loc = "top", main = "Rentabilités au carré du UBI.PA", col = rainbow(4))
-plot.xts(return_var,legend.loc = "top", main = "Variance conditionnelle du modèle GJR(1,1)", col = "blue")
+plot.xts(creturn2_,legend.loc = "top", main = "Rentabilités au carré du UBI.PA", col = rainbow(4))
+plot.xts(return_var,legend.loc = NULL, main = "Variance conditionnelle du modèle GJR(1,1)", col = "blue")
 ```
 
 
-# Prévision de la VaR (2023)
+# Prévision de la VaR (2025)
 
 ## Calcul de la VaR
 
 ```{r}
-show(creturn[450,])	# 2019-12-31	0.002946022
-b <- nrow(return)	# b=1258
-estim <- 1006		# nbre observations des rentabilités de 2016 à 2019
-h <- b-1007+1		# nbre observations des rentabilités en 2020
-original <- return[1007:1258, 1]		# rentabilités originales en 2020
+y <- creturn
+show(creturn[1026,])	# 2024-12-31	0.01937985
+b <- nrow(return)	# b=1281
+estim <- 1026		# nbre observations des rentabilités de 2021 à 2024
+h <- b-1027+1		# nbre observations des rentabilités en 2024
+original <- return[1027:1281, 1]		# rentabilités originales en 2025
 ```
 
 ```{r}
@@ -398,9 +406,13 @@ original <- return[1007:1258, 1]		# rentabilités originales en 2020
 foremat <- matrix(nrow=h, ncol=1) # matrice contenant les prévisions de la variance
 varmat <- matrix(nrow=h, ncol=1) # matrice contenant les prévisions de la VaR
 esmat <- matrix(nrow=h, ncol=1)
+```
 
+### GARCH Loi Normale
+
+```{r}
 # Estimating GARCH(1,1) with only an intercept in the mean
-spec = ugarchspec(variance.model=list(model = "sGARCH"),mean.model=list(armaOrder=c(0,0), include.mean=TRUE))
+spec = ugarchspec(variance.model=list(model = "sGARCH"), mean.model=list(armaOrder=c(0,0), include.mean=TRUE), distribution.model = "norm")
 
 for(i in 1:h)
 {
@@ -430,18 +442,117 @@ print(VaRTest(0.05, as.numeric(original), as.numeric(varmat)))
 print(ESTest(0.05, as.numeric(original), as.numeric(esmat), as.numeric(varmat), boot = TRUE))
 
 # Writing the results to output file, change the output file name
-write(t(foremat),file="forecast_igarch.out",ncolumn=1,append=FALSE)
-write(t(varmat),file="var_igarch.out",ncolumn=1,append=FALSE)			
+write(t(foremat),file="forecast_garch_n.out",ncolumn=1,append=FALSE)
+write(t(varmat),file="var_garch_n.out",ncolumn=1,append=FALSE)
 ```
+
+### Riskmetrics Loi Normale
 
 ```{r}
-# Kupiec backtesting test with GAS package
-alpha = 0.05
-var = ts(varmat)
-backtest <- BacktestVaR(data = original, VaR = var, alpha = alpha)
-kupiec <- backtest$LRuc		# Kupiec test
-show(kupiec)
+spec = ugarchspec(variance.model=list(model = "iGARCH"), mean.model=list(armaOrder=c(0,0), include.mean=TRUE), fixed.pars=list(omega=0,alpha1=0.06,beta1=0.94), distribution.model = "norm")
+
+for(i in 1:h)
+{
+  yy <- y[1:(estim-1+i),1]
+  fit = ugarchfit(data = yy, spec = spec)
+  forc =  ugarchforecast(fit, n.ahead=1)
+  foremat[i,1] <- sigma(forc)^2
+  varmat[i,1] <- qnorm(0.05)*sigma(forc)
+  esmat[i,1] <- -dnorm(qnorm(0.05))/0.05*sigma(forc)
+}
+
+error <- original^2 - foremat
+mse <- mean(error^2)
+mse*100			# MSE(%)
+mean(varmat)	# VaR moyenne
+mean(esmat)		# Expected shortfall
+
+# VaR figure
+data <- cbind(original,varmat)
+options(repr.plot.res = 300, repr.plot.height = 4.4) 
+plot.xts(data,legend.loc = "topleft", main = "Returns and VaR", col = rainbow(4))
+
+# Kupiec and Engle-Manganelli VaR tests
+print(VaRTest(0.05, as.numeric(original), as.numeric(varmat)))
+
+#  McNeil-Frey ES test
+print(ESTest(0.05, as.numeric(original), as.numeric(esmat), as.numeric(varmat), boot = TRUE))
+
+# Writing the results to output file, change the output file name
+write(t(foremat),file="forecast_risk_n.out",ncolumn=1,append=FALSE)
+write(t(varmat),file="var_risk_n.out",ncolumn=1,append=FALSE)	
 ```
 
+### Riskmetrics Loi Student
 
-## Mesures de VaR / ES
+```{r}
+spec = ugarchspec(variance.model=list(model = "iGARCH"), mean.model=list(armaOrder=c(0,0), include.mean=TRUE), fixed.pars=list(omega=0,alpha1=0.06,beta1=0.94), distribution.model = "std")
+
+for(i in 1:h)
+{
+  yy <- y[1:(estim-1+i),1]
+  fit = ugarchfit(data = yy, spec = spec)
+  forc =  ugarchforecast(fit, n.ahead=1)
+  foremat[i,1] <- sigma(forc)^2
+  varmat[i,1] <- qnorm(0.05)*sigma(forc)
+  esmat[i,1] <- -dnorm(qnorm(0.05))/0.05*sigma(forc)
+}
+
+error <- original^2 - foremat
+mse <- mean(error^2)
+mse*100			# MSE(%)
+mean(varmat)	# VaR moyenne
+mean(esmat)		# Expected shortfall
+
+# VaR figure
+data <- cbind(original,varmat)
+options(repr.plot.res = 300, repr.plot.height = 4.4) 
+plot.xts(data,legend.loc = "topleft", main = "Returns and VaR", col = rainbow(4))
+
+# Kupiec and Engle-Manganelli VaR tests
+print(VaRTest(0.05, as.numeric(original), as.numeric(varmat)))
+
+#  McNeil-Frey ES test
+print(ESTest(0.05, as.numeric(original), as.numeric(esmat), as.numeric(varmat), boot = TRUE))
+
+# Writing the results to output file, change the output file name
+write(t(foremat),file="forecast_risk_s.out",ncolumn=1,append=FALSE)
+write(t(varmat),file="var_risk_s.out",ncolumn=1,append=FALSE)		
+```
+
+### IGARCH Loi Student
+
+```{r}
+spec = ugarchspec(variance.model=list(model = "iGARCH"), mean.model=list(armaOrder=c(0,0), include.mean=TRUE), distribution.model = "std")
+
+for(i in 1:h)
+{
+  yy <- y[1:(estim-1+i),1]
+  fit = ugarchfit(data = yy, spec = spec)
+  forc =  ugarchforecast(fit, n.ahead=1)
+  foremat[i,1] <- sigma(forc)^2
+  varmat[i,1] <- qnorm(0.05)*sigma(forc)
+  esmat[i,1] <- -dnorm(qnorm(0.05))/0.05*sigma(forc)
+}
+
+error <- original^2 - foremat
+mse <- mean(error^2)
+mse*100			# MSE(%)
+mean(varmat)	# VaR moyenne
+mean(esmat)		# Expected shortfall
+
+# VaR figure
+data <- cbind(original,varmat)
+options(repr.plot.res = 300, repr.plot.height = 4.4) 
+plot.xts(data,legend.loc = "topleft", main = "Returns and VaR", col = rainbow(4))
+
+# Kupiec and Engle-Manganelli VaR tests
+print(VaRTest(0.05, as.numeric(original), as.numeric(varmat)))
+
+#  McNeil-Frey ES test
+print(ESTest(0.05, as.numeric(original), as.numeric(esmat), as.numeric(varmat), boot = TRUE))
+
+# Writing the results to output file, change the output file name
+write(t(foremat),file="forecast_igarch_s.out",ncolumn=1,append=FALSE)
+write(t(varmat),file="var_igarch_s.out",ncolumn=1,append=FALSE)		
+```
