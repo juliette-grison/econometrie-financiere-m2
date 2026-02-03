@@ -16,7 +16,7 @@ library(fBasics)
 library(DescTools)
 library(FinTS)
 library(rugarch)
-library(GAS)
+# library(GAS) impossible de le télécharger
 ```
 
 ## Import des données
