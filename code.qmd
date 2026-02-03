@@ -138,6 +138,7 @@ show(sdev)
 
 ```{r}
 # Calcul du skewness empirique
+mu2 <- mean( (creturn - mean(creturn))^2 )
 mu3 <- mean( (creturn - mean(creturn))^3 )
 sigma <- sqrt(mu2)
 
@@ -151,6 +152,8 @@ nu1 <- Skew / sqrt(6 / length(creturn))
 
 ```{r}
 # Décision statistique
+alpha <- 0.05
+VC <- qnorm(1 - alpha/2)
 abs(nu1) > VC
 ```
 
@@ -172,7 +175,6 @@ if (abs(nu1) < VC) {
 
 ```{r}
 # Calcul de la kurtosis empirique
-mu2 <- mean( (creturn - mean(creturn))^2 )
 mu4 <- mean( (creturn - mean(creturn))^4 )
 
 Kur <- mu4 / (mu2^2)
@@ -186,9 +188,6 @@ nu2 <- ExcessKur / sqrt(24 / length(creturn))
 
 ```{r}
 # Décision statistique
-alpha <- 0.05
-VC <- qnorm(1 - alpha/2)
-
 abs(nu2) > VC
 ```
 
