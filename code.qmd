@@ -430,6 +430,7 @@ mse*100			# MSE(%)
 mean(varmat)	# VaR moyenne
 mean(esmat)		# Expected shortfall
 
+par(mfrow=c(1,1))
 # VaR figure
 data <- cbind(original,varmat)
 options(repr.plot.res = 300, repr.plot.height = 4.4) 
@@ -440,6 +441,14 @@ print(VaRTest(0.05, as.numeric(original), as.numeric(varmat)))
 
 #  McNeil-Frey ES test
 print(ESTest(0.05, as.numeric(original), as.numeric(esmat), as.numeric(varmat), boot = TRUE))
+
+# Exception la plus important
+exceed <- which(original < varmat)
+worst  <- exceed[ which.min(original[exceed] - varmat[exceed]) ]
+
+index(original)[worst]   # date
+original[worst]          # rendement observé
+varmat[worst]            # VaR prévue
 
 # Writing the results to output file, change the output file name
 write(t(foremat),file="forecast_garch_n.out",ncolumn=1,append=FALSE)
@@ -478,6 +487,14 @@ print(VaRTest(0.05, as.numeric(original), as.numeric(varmat)))
 #  McNeil-Frey ES test
 print(ESTest(0.05, as.numeric(original), as.numeric(esmat), as.numeric(varmat), boot = TRUE))
 
+# Exception la plus important
+exceed <- which(original < varmat)
+worst  <- exceed[ which.min(original[exceed] - varmat[exceed]) ]
+
+index(original)[worst]   # date
+original[worst]          # rendement observé
+varmat[worst]            # VaR prévue
+
 # Writing the results to output file, change the output file name
 write(t(foremat),file="forecast_risk_n.out",ncolumn=1,append=FALSE)
 write(t(varmat),file="var_risk_n.out",ncolumn=1,append=FALSE)	
@@ -515,6 +532,14 @@ print(VaRTest(0.05, as.numeric(original), as.numeric(varmat)))
 #  McNeil-Frey ES test
 print(ESTest(0.05, as.numeric(original), as.numeric(esmat), as.numeric(varmat), boot = TRUE))
 
+# Exception la plus important
+exceed <- which(original < varmat)
+worst  <- exceed[ which.min(original[exceed] - varmat[exceed]) ]
+
+index(original)[worst]   # date
+original[worst]          # rendement observé
+varmat[worst]            # VaR prévue
+
 # Writing the results to output file, change the output file name
 write(t(foremat),file="forecast_risk_s.out",ncolumn=1,append=FALSE)
 write(t(varmat),file="var_risk_s.out",ncolumn=1,append=FALSE)		
@@ -551,6 +576,14 @@ print(VaRTest(0.05, as.numeric(original), as.numeric(varmat)))
 
 #  McNeil-Frey ES test
 print(ESTest(0.05, as.numeric(original), as.numeric(esmat), as.numeric(varmat), boot = TRUE))
+
+# Exception la plus important
+exceed <- which(original < varmat)
+worst  <- exceed[ which.min(original[exceed] - varmat[exceed]) ]
+
+index(original)[worst]   # date
+original[worst]          # rendement observé
+varmat[worst]            # VaR prévue
 
 # Writing the results to output file, change the output file name
 write(t(foremat),file="forecast_igarch_s.out",ncolumn=1,append=FALSE)
