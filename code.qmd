@@ -396,7 +396,7 @@ y <- creturn
 show(creturn[1026,])	# 2024-12-31	0.01937985
 b <- nrow(return)	# b=1281
 estim <- 1026		# nbre observations des rentabilités de 2021 à 2024
-h <- b-1027+1		# nbre observations des rentabilités en 2024
+h <- b-1027+1		# nbre observations des rentabilités en 2025
 original <- return[1027:1281, 1]		# rentabilités originales en 2025
 ```
 
